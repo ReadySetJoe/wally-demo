@@ -40,9 +40,21 @@ export interface GeopoliticalSummary {
 
 // Keywords for detecting commodity relevance
 export const COMMODITY_KEYWORDS: Record<CommodityName, string[]> = {
+  // Grains
   corn: ['corn', 'maize', 'ethanol', 'feed grain', 'corn belt', 'usda corn'],
   wheat: ['wheat', 'grain', 'bread', 'flour', 'black sea', 'wheat export', 'winter wheat', 'spring wheat'],
   soybeans: ['soybean', 'soy', 'oilseed', 'soybean oil', 'soy meal', 'brazil soy', 'china soy'],
+  // Softs
+  orange_juice: ['orange', 'citrus', 'juice', 'fcoj', 'florida citrus', 'orange grove', 'citrus greening'],
+  coffee: ['coffee', 'arabica', 'robusta', 'cafe', 'brazil coffee', 'coffee bean', 'coffee harvest'],
+  sugar: ['sugar', 'sugarcane', 'sugar beet', 'ethanol', 'brazil sugar', 'raw sugar', 'refined sugar'],
+  cotton: ['cotton', 'textile', 'cotton harvest', 'cotton belt', 'cotton export', 'fiber'],
+  cocoa: ['cocoa', 'chocolate', 'cacao', 'ivory coast', 'ghana cocoa', 'cocoa bean', 'cocoa harvest'],
+  // Produce
+  tomatoes: ['tomato', 'tomatoes', 'fresh produce', 'vegetable', 'greenhouse', 'salad'],
+  avocados: ['avocado', 'avocados', 'guacamole', 'mexico avocado', 'hass avocado', 'california avocado'],
+  almonds: ['almond', 'almonds', 'tree nut', 'nut', 'california almond', 'almond harvest'],
+  lettuce: ['lettuce', 'salad', 'romaine', 'iceberg', 'leafy green', 'salinas', 'yuma lettuce'],
 };
 
 // Keywords for detecting event categories
@@ -57,7 +69,19 @@ export const CATEGORY_KEYWORDS: Record<EventCategory, string[]> = {
 
 // Regions that significantly impact each commodity
 export const COMMODITY_REGIONS: Record<CommodityName, string[]> = {
+  // Grains
   corn: ['united states', 'usa', 'brazil', 'argentina', 'china', 'ukraine', 'mexico'],
   wheat: ['russia', 'ukraine', 'united states', 'usa', 'canada', 'australia', 'india', 'black sea', 'european union', 'eu'],
   soybeans: ['brazil', 'united states', 'usa', 'argentina', 'china', 'paraguay'],
+  // Softs
+  orange_juice: ['united states', 'usa', 'florida', 'brazil', 'mexico', 'spain'],
+  coffee: ['brazil', 'vietnam', 'colombia', 'ethiopia', 'honduras', 'indonesia', 'central america'],
+  sugar: ['brazil', 'india', 'thailand', 'china', 'united states', 'usa', 'australia'],
+  cotton: ['united states', 'usa', 'china', 'india', 'brazil', 'pakistan', 'australia', 'uzbekistan'],
+  cocoa: ['ivory coast', 'ghana', 'ecuador', 'cameroon', 'nigeria', 'indonesia', 'west africa'],
+  // Produce
+  tomatoes: ['united states', 'usa', 'mexico', 'california', 'florida', 'spain', 'turkey'],
+  avocados: ['mexico', 'united states', 'usa', 'california', 'peru', 'chile', 'colombia'],
+  almonds: ['united states', 'usa', 'california', 'spain', 'australia', 'iran'],
+  lettuce: ['united states', 'usa', 'california', 'arizona', 'mexico', 'spain'],
 };

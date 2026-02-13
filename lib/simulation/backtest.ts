@@ -52,15 +52,36 @@ function generateHistoricalPrices(
   endDate: Date
 ): { date: string; price: number }[] {
   const basePrices: Record<CommodityName, number> = {
+    // Grains (cents/bushel)
     corn: 450,
     wheat: 600,
     soybeans: 1100,
+    // Softs
+    orange_juice: 285,  // cents/lb
+    coffee: 185,        // cents/lb
+    sugar: 21,          // cents/lb
+    cotton: 78,         // cents/lb
+    cocoa: 5200,        // $/ton
+    // Produce (simulated)
+    tomatoes: 28,       // $/cwt
+    avocados: 42,       // $/case
+    almonds: 3.25,      // $/lb
+    lettuce: 18,        // $/carton
   };
 
   const volatility: Record<CommodityName, number> = {
     corn: 0.02,
     wheat: 0.025,
     soybeans: 0.02,
+    orange_juice: 0.03,
+    coffee: 0.025,
+    sugar: 0.02,
+    cotton: 0.02,
+    cocoa: 0.025,
+    tomatoes: 0.04,
+    avocados: 0.05,
+    almonds: 0.025,
+    lettuce: 0.04,
   };
 
   const prices: { date: string; price: number }[] = [];
@@ -90,10 +111,15 @@ function generateHistoricalPrices(
 // Generate synthetic historical signals based on "weather" patterns
 function generateHistoricalSignals(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  selectedCommodities?: CommodityName[]
 ): Map<string, { commodity: CommodityName; signalType: SignalType; strength: number }[]> {
   const signals = new Map<string, { commodity: CommodityName; signalType: SignalType; strength: number }[]>();
-  const commodities: CommodityName[] = ['corn', 'wheat', 'soybeans'];
+  const commodities: CommodityName[] = selectedCommodities || [
+    'corn', 'wheat', 'soybeans',           // Grains
+    'orange_juice', 'coffee', 'sugar', 'cotton', 'cocoa',  // Softs
+    'tomatoes', 'avocados', 'almonds', 'lettuce',          // Produce
+  ];
 
   const current = new Date(startDate);
   let phase = 0; // Weather cycle phase
@@ -138,6 +164,13 @@ function generateHistoricalSignals(
   return signals;
 }
 
+// Default commodities for simulation
+const ALL_SIMULATION_COMMODITIES: CommodityName[] = [
+  'corn', 'wheat', 'soybeans',
+  'orange_juice', 'coffee', 'sugar', 'cotton', 'cocoa',
+  'tomatoes', 'avocados', 'almonds', 'lettuce',
+];
+
 export function runBacktest(config: SimulationConfig): SimulationResult {
   // Initialize seeded RNG for deterministic results
   const seed = createSeed(config);
@@ -147,18 +180,17 @@ export function runBacktest(config: SimulationConfig): SimulationResult {
   const startDate = new Date(config.startDate);
   const endDate = new Date(config.endDate);
 
-  // Generate historical data
-  const cornPrices = generateHistoricalPrices('corn', startDate, endDate);
-  const wheatPrices = generateHistoricalPrices('wheat', startDate, endDate);
-  const soybeanPrices = generateHistoricalPrices('soybeans', startDate, endDate);
+  // Get commodities to simulate (use config or default to all)
+  const commoditiesToSimulate = config.commodities || ALL_SIMULATION_COMMODITIES;
 
-  const priceMap: Record<CommodityName, Map<string, number>> = {
-    corn: new Map(cornPrices.map(p => [p.date, p.price])),
-    wheat: new Map(wheatPrices.map(p => [p.date, p.price])),
-    soybeans: new Map(soybeanPrices.map(p => [p.date, p.price])),
-  };
+  // Generate historical data for each commodity
+  const priceMap = {} as Record<CommodityName, Map<string, number>>;
+  for (const commodity of commoditiesToSimulate) {
+    const prices = generateHistoricalPrices(commodity, startDate, endDate);
+    priceMap[commodity] = new Map(prices.map(p => [p.date, p.price]));
+  }
 
-  const historicalSignals = generateHistoricalSignals(startDate, endDate);
+  const historicalSignals = generateHistoricalSignals(startDate, endDate, commoditiesToSimulate);
 
   // Simulation state
   let cash = config.initialCapital;

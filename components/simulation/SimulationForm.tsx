@@ -1,6 +1,7 @@
 'use client';
 
 import { SimulationConfig } from '@/types/simulation';
+import { CommodityName, CommodityCategory, COMMODITY_MAP, COMMODITY_SYMBOLS_BY_CATEGORY } from '@/types/commodity';
 
 interface SimulationFormProps {
   config: SimulationConfig;
@@ -9,9 +10,52 @@ interface SimulationFormProps {
   loading: boolean;
 }
 
+const CATEGORY_LABELS: Record<CommodityCategory, string> = {
+  grains: 'Grains (CME)',
+  softs: 'Softs (ICE)',
+  produce: 'Produce (Simulated)',
+};
+
+const ALL_COMMODITIES: CommodityName[] = [
+  'corn', 'wheat', 'soybeans',
+  'orange_juice', 'coffee', 'sugar', 'cotton', 'cocoa',
+  'tomatoes', 'avocados', 'almonds', 'lettuce',
+];
+
+const CATEGORY_COMMODITIES: Record<CommodityCategory, CommodityName[]> = {
+  grains: ['corn', 'wheat', 'soybeans'],
+  softs: ['orange_juice', 'coffee', 'sugar', 'cotton', 'cocoa'],
+  produce: ['tomatoes', 'avocados', 'almonds', 'lettuce'],
+};
+
 export function SimulationForm({ config, onChange, onRun, loading }: SimulationFormProps) {
-  const updateConfig = (key: keyof SimulationConfig, value: number | string) => {
+  const updateConfig = (key: keyof SimulationConfig, value: number | string | CommodityName[]) => {
     onChange({ ...config, [key]: value });
+  };
+
+  const selectedCommodities = config.commodities || ALL_COMMODITIES;
+
+  const toggleCommodity = (commodity: CommodityName) => {
+    const isSelected = selectedCommodities.includes(commodity);
+    const newCommodities = isSelected
+      ? selectedCommodities.filter(c => c !== commodity)
+      : [...selectedCommodities, commodity];
+    updateConfig('commodities', newCommodities.length > 0 ? newCommodities : ALL_COMMODITIES);
+  };
+
+  const toggleCategory = (category: CommodityCategory) => {
+    const categoryCommodities = CATEGORY_COMMODITIES[category];
+    const allSelected = categoryCommodities.every(c => selectedCommodities.includes(c));
+
+    let newCommodities: CommodityName[];
+    if (allSelected) {
+      // Remove all from category
+      newCommodities = selectedCommodities.filter(c => !categoryCommodities.includes(c));
+    } else {
+      // Add all from category
+      newCommodities = [...new Set([...selectedCommodities, ...categoryCommodities])];
+    }
+    updateConfig('commodities', newCommodities.length > 0 ? newCommodities : ALL_COMMODITIES);
   };
 
   return (
@@ -58,6 +102,52 @@ export function SimulationForm({ config, onChange, onRun, loading }: SimulationF
               onChange={(e) => updateConfig('endDate', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-800 mb-2">
+            Commodities ({selectedCommodities.length} selected)
+          </label>
+          <div className="space-y-2">
+            {(['grains', 'softs', 'produce'] as CommodityCategory[]).map(category => {
+              const categoryCommodities = CATEGORY_COMMODITIES[category];
+              const selectedInCategory = categoryCommodities.filter(c => selectedCommodities.includes(c)).length;
+              const allSelected = selectedInCategory === categoryCommodities.length;
+
+              return (
+                <div key={category} className="border border-gray-200 rounded-lg p-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={() => toggleCategory(category)}
+                        className="w-4 h-4 text-blue-600 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700">{CATEGORY_LABELS[category]}</span>
+                    </label>
+                    <span className="text-xs text-gray-500">{selectedInCategory}/{categoryCommodities.length}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 ml-6">
+                    {categoryCommodities.map(commodity => (
+                      <button
+                        key={commodity}
+                        type="button"
+                        onClick={() => toggleCommodity(commodity)}
+                        className={`text-xs px-2 py-0.5 rounded transition-colors ${
+                          selectedCommodities.includes(commodity)
+                            ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                            : 'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}
+                      >
+                        {commodity.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

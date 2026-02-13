@@ -9,6 +9,7 @@ export interface SimulationConfig {
   positionSize: number; // % of capital per trade (e.g., 0.1 = 10%)
   stopLoss: number; // % loss to exit (e.g., 0.05 = 5%)
   takeProfit: number; // % gain to exit (e.g., 0.1 = 10%)
+  commodities?: CommodityName[]; // Optional: which commodities to trade (defaults to all)
 }
 
 export interface Trade {
